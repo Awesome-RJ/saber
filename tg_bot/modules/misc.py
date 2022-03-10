@@ -77,8 +77,7 @@ def lyrics(update: Update, context: CallbackContext):
     if not query:
         msg.reply_text("You haven't specified which song to look for!")
         return
-    song = Song.find_song(query)
-    if song:
+    if song := Song.find_song(query):
         if song.lyrics:
             reply = song.format()
         else:
@@ -123,12 +122,8 @@ def github(update, context):
 
         for x, y in usr.items():
             if x in whitelist:
-                if x in difnames:
-                    x = difnames[x]
-                else:
-                    x = x.title()
-
-                if x == 'Account created at' or x == 'Last updated':
+                x = difnames[x] if x in difnames else x.title()
+                if x in ['Account created at', 'Last updated']:
                     y = datetime.strptime(y, "%Y-%m-%dT%H:%M:%SZ")
 
                 if y not in goaway:
@@ -234,9 +229,10 @@ def get_paste_content(update, context):
                     "Unknown error occured")
         r.raise_for_status()
 
-    update.effective_message.reply_text('```' + escape_markdown(r.text) +
-                                        '```',
-                                        parse_mode=ParseMode.MARKDOWN)
+    update.effective_message.reply_text(
+        (f'```{escape_markdown(r.text)}' + '```'),
+        parse_mode=ParseMode.MARKDOWN,
+    )
 
 
 @run_async
@@ -323,7 +319,7 @@ def markdown_help(update, context):
 def wiki(update, context):
     kueri = re.split(pattern="wiki", string=update.effective_message.text)
     wikipedia.set_lang("en")
-    if len(str(kueri[1])) == 0:
+    if not str(kueri[1]):
         update.effective_message.reply_text("Enter keywords!")
     else:
         try:
@@ -443,9 +439,9 @@ def app(update: Update, _):
             'div', 'Vpfmgd').findNext(
             'div', 'uzcko').img['data-src']
         app_details = "<a href='" + app_icon + "'>📲&#8203;</a>"
-        app_details += " <b>" + app_name + "</b>"
+        app_details += f" <b>{app_name}</b>"
         app_details += "\n\n<i>Developer :</i> <a href='" + app_dev_link + "'>"
-        app_details += app_dev + "</a>"
+        app_details += f'{app_dev}</a>'
         app_details += "\n<i>Rating :</i> " + app_rating.replace(
             "Rated ", "⭐️ ").replace(" out of ", "/").replace(
                 " stars", "", 1).replace(" stars", "⭐️").replace("five", "5")
@@ -493,10 +489,10 @@ def rmemes(update, context):
         return
     res = res.json()
 
-    rpage = res.get(str("subreddit"))  # Subreddit
-    title = res.get(str("title"))  # Post title
-    memeu = res.get(str("url"))  # meme pic url
-    plink = res.get(str("postLink"))
+    rpage = res.get("subreddit")
+    title = res.get("title")
+    memeu = res.get("url")
+    plink = res.get("postLink")
 
     caps = f"- <b>Title</b>: {title}\n"
     caps += f"- <b>Subreddit:</b> <pre>r/{rpage}</pre>"
@@ -534,8 +530,7 @@ def slist(update, context):
 
 @run_async
 def reply_keyboard_remove(update, context):
-    reply_keyboard = []
-    reply_keyboard.append([ReplyKeyboardRemove(remove_keyboard=True)])
+    reply_keyboard = [[ReplyKeyboardRemove(remove_keyboard=True)]]
     reply_markup = ReplyKeyboardRemove(remove_keyboard=True)
     old_message = context.bot.send_message(
         chat_id=update.message.chat_id,

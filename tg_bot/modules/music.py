@@ -13,10 +13,8 @@ try:
    from youtubesearchpython import SearchVideos 
 
 except:
-	os.system("pip install pip install youtube-search-python")
-	from youtubesearchpython import SearchVideos 
-	pass
-
+   os.system("pip install pip install youtube-search-python")
+   from youtubesearchpython import SearchVideos
 register(pattern="^/video (.*)")
 async def download_video(v_url):  
     lazy = v_url ; sender = await lazy.get_sender() ; me = await lazy.client.get_me()
